@@ -4,13 +4,14 @@ import time
 import sys
 from bs4 import BeautifulSoup
 from bs4.element import Tag
+import re
 
 ##### error messages #########
 
 ERR_ARG = "Error in arguments argumnets must be  scriptname.py url"
 ERR_OUT = "page has no outgoing links"
 ERR_LOOP = " we have stucked in a loop"
-ERR_INF = " time out we have rea"
+ERR_INF = " trails out"
 ERR_NET = " Network error"
 SUCC=" we have reached philosophy"
 
@@ -19,7 +20,8 @@ PHILO_LINK = "https://en.wikipedia.org/wiki/Philosophy"
 BASE_URL = 'https://en.wikipedia.org'
 
 #####
-##### number of trials to stop after it the crawling 
+##### number of trials to stop after it the crawling  
+##### only in case if the path is too long to terminate the algorithm  ( rarly excuted ) 
 TIME_OUT = 50
 
 
@@ -35,19 +37,18 @@ TIME_OUT = 50
 def removeParen(tag):
 
     remove =False
-    #print (tag)
     for child in tag.children:
-
-        
-        if (str(child.string).count("(") == 1 and str(child.string).count(")")==0):
+        if (str(child.string).count("(") > str(child.string).count(")")):
             remove =True
 
-        if (str(child.string).count(")") == 1 and str(child.string).count("(")==0):
+        if (str(child.string).count(")") >  str(child.string).count("(")):
             child.replace_with("")
             remove =False
 
+
         if remove == True:
             child.replace_with("")
+
 
     return tag
 
@@ -96,10 +97,12 @@ def getLink(text):
                 continue
 
             link=a.get("href")
-            if link.find("redlink=1") == -1 :
-                print(link)
-                return BASE_URL+link
-            print("RED LINK"+link)
+            
+            if re.match(r"/wiki/.+", link, flags=0):  # case of the operand @XRn
+                if link.find("redlink=1") == -1 :
+                    print(link)
+                    return BASE_URL+link
+                print("RED LINK"+link)
             
 
     return None
@@ -133,28 +136,32 @@ def main():
     count =0
     while (True):
         chain.append(url)
-        response = requests.get(url)
-        if response.ok == True:
-            count=count+1
-            link = getLink(response.text)
-            if link == None :
-                print(ERR_OUT)
-                return
-            elif link in chain:
-                print (ERR_LOOP)
-                return
-            elif count >= TIME_OUT:
-                print(ERR_INF)
+        try:
+            response = requests.get(url)
+            if response.ok == True:
+                count=count+1
+                link = getLink(response.text)
+                if link == None :
+                    print(ERR_OUT)
+                    return
+                elif link in chain:
+                    print (ERR_LOOP)
+                    return
+                elif count >= TIME_OUT:
+                    print(ERR_INF)
+                    return 
+                elif link == PHILO_LINK:
+                    print(SUCC)
+                    return 
+                url = link
+                time.sleep(0.5)
+            else:
+                print (ERR_NET)
                 return 
-            elif link == PHILO_LINK:
-                print(SUCC)
-                return 
-            url = link
-            time.sleep(0.5)
-        else:
+        except requests.exceptions.ConnectionError:
             print (ERR_NET)
-            return 
-            
+            return
+                
             
         
                 
