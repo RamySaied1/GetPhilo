@@ -23,10 +23,15 @@ BASE_URL = 'https://en.wikipedia.org'
 TIME_OUT = 50
 
 
+'''
+    To remove tags between () in parant tag
 
+    Args:
+        arg (tag): The arg is the input tag 
 
-
-
+    return:
+        tag elemnt after modification
+'''
 def removeParen(tag):
 
     remove =False
@@ -47,6 +52,15 @@ def removeParen(tag):
     return tag
 
 
+'''
+    To get the fist outgoing link in wikipedia paragraph
+    Args:
+        arg (text): body or data of request on specific link
+
+    return:
+        string ---> the specificed outgoinglink
+'''
+
 def getLink(text):
     ## first get to the content tag of wikipedia
     soup = BeautifulSoup(text, "html.parser")
@@ -56,8 +70,6 @@ def getLink(text):
     ## paragarpsh will be in div or p tags
     soup = soup.findChildren(["div", "p"], recursive=False)
 
-    f = open("debug.txt", "a")
-
     ## filter this paragrapsh to get normal paragraphs
 
     tags = [tag for tag in soup if (
@@ -65,19 +77,9 @@ def getLink(text):
 
     ## loop on each paragraph or div and get first  href we get
     for tag in tags:
-        # f.writelines(str(tag.encode("utf8")))
-        # f.writelines("\n\n\n")
-        # for t in tag.children:
-        #     f.writelines(str(t.encode("utf8")))
-        #     f.writelines("\n\n\n")
-        tag = removeParen(tag)
-        # f.writelines("\n\n\n ##################### \n \n \n \n")
 
-        # f.writelines(str(tag.encode("utf8")))
-        # f.writelines("\n\n\n")
-        # for t in tag.children:
-        #     f.writelines(str(t.encode("utf8")))
-        #     f.writelines("\n\n\n")
+        tag = removeParen(tag)
+
 
         hrefs = tag.findChildren(['a'], href=True, recursive=False)
         for a in hrefs:
@@ -103,7 +105,21 @@ def getLink(text):
     return None
 
 
+'''
+    Main function of the script
+    crawling the wikipedia website untill we find the philosophy page or 
+    there is a loop or
+    or we ended at a page with no outgoing link
 
+    arg:
+    command line parameters the link of wikipedai article.
+
+
+    return:
+    doesn't return anything but only print a message indicate the if we get to philosopgy page or not 
+    and also print the pages we visit.
+    
+'''
 def main():
 
     if len(sys.argv) != 2:
