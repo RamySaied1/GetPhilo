@@ -61,6 +61,7 @@ page has no outgoing links
 ```
 - ### test case (page with redlink as the first link)
 - link : https://en.wikipedia.org/wiki/Wikipedia:Red_link
+- first red link ignored and choose the link after it
 ```
 A red link, like this one, signifies that the linked-to page does not exist‍—‌it either never existed, or previously existed but has been deleted. It is useful while editing articles to add a red link to indicate that a page will be created soon or that an article should be created for the topic because the subject is notable and verifiable. Red links help Wikipedia grow.[1] The creation of red links prevents new pages from being orphaned from the start.[2]
 ```
